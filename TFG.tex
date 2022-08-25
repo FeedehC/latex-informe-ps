@@ -1,0 +1,43 @@
+% Plantilla TFG LaTeX LSI por:
+%   Agustín Borrego <borrego@us.es>
+%   Inma Hernández <inmahernandez@us.es>
+% Su uso y modificación es libre.
+
+\documentclass[12pt]{report}
+% Paquetes LaTeX y estilos globales
+\input{etc/pkgs}
+\input{etc/style}
+
+% Comienzo del documento
+\begin{document}
+
+    % Portada y secciones no numeradas
+    \input{sections/00_portada}
+    \input{sections/00_resumen}
+    
+    % Índice del documento y de figuras
+    \begingroup
+        % Los enlaces son normalmente azules, pero en los índices se configuran a negro
+        % para que no aparezca todo azul
+        \hypersetup{linkcolor=black}
+        \tableofcontents
+        \listoffigures
+        \lstlistoflistings
+    \endgroup
+    
+    % Cambia el estilo de números de página a normal
+    \clearpage\pagenumbering{arabic}
+    
+    % Capítulos del trabajo
+    \input{sections/01_memoria_descriptiva}
+    \input{sections/02_marco_teorico}
+    \input{sections/03_actividades}
+    \input{sections/XX_Conclusiones}
+    \input{sections/ejemplos_borrame}
+    
+    % Bibliografía
+    \bibliographystyle{plainnat}
+    \bibliography{bibliografia.bib}
+
+% Fin del documento
+\end{document}
