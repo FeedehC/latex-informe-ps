@@ -45,7 +45,7 @@ La placa que se adquirió es la \textbf{“NodeMCU32S”}, que se consigue fáci
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{fig/esp32_1.png}
-    \caption{Placa NodeMCU32S.}
+    \caption{Placa ESP32 tipo NodeMCU32S.}
     \label{fig:esp32_1}
 \end{figure}
 
@@ -125,11 +125,11 @@ Este proyecto es considerado \textbf{Open Source}. Se incentiva la participació
 \subsection{Continuous Integration (CI)}
 El próximo paso es añadir CI al proyecto, para esto se usan \textbf{GitHub Actions}, una característica de GitHub que permite crear \textbf{Workflows}.
 
-El término \textbf{Workflow} consiste en un flujo de trabajo, declarado en código YAML, que define distintas tareas (o \textbf{"Jobs"}), ante qué eventos se disparan los Jobs, y qué acciones se llevan a cabo en cada job. Opcionalmente los jobs pueden incluir pasos (o \textbf{"Steps"}) que indican el orden de las instrucciones dentro del job. A su vez, los jobs pueden ejecutarse en paralelo o indicar que para que inicie un job debe terminar otro, y de esta manera crear el mencionado workflow.
+El término \textbf{Workflow} consiste en un flujo de trabajo, declarado en código YAML, que define distintas tareas (o \textbf{``Jobs"}), ante qué eventos se disparan los Jobs, y qué acciones se llevan a cabo en cada job. Opcionalmente los jobs pueden incluir pasos (o \textbf{``Steps"}) que indican el orden de las instrucciones dentro del job. A su vez, los jobs pueden ejecutarse en paralelo o indicar que para que inicie un job debe terminar otro, y de esta manera ordenar las tareas que se pueden paralelizar y aquellas que deben realizarse en forma secuencial.
 
-En cambio, el término \textbf{Pipeline}, hace alusión a un conjunto de etapas más lineal y más rápido que un workflow, sin embargo, es habitual usar estos términos de forma intercambiable. En los párrafos que siguen se usa el término Workflow porque así se llaman en GitHub Actions.
+En cambio, el término \textbf{Pipeline}, hace alusión a un conjunto de etapas más lineal y más rápido que un Workflow. Sin embargo, en la práctica, es habitual usar estos términos de forma intercambiable. En los párrafos que siguen se usa el término Workflow ya que así se llaman en GitHub Actions.
 
-Una vez creado el workflow, se indica el evento que lo desencadena. En este caso, el evento es \textbf{cuando se añaden cambios en el código del programa y se pushean a la rama principal} (rama main), a partir del cual se inician una serie de acciones para \textbf{compilar, testear y cargar} automáticamente este código en la placa. De esta misma manera se realiza para entornos de desarrollo Web, con la diferencia de que para proyectos IoT se debe incluir herramientas específicas para cargar el programa en la placa, tal como se detalló anteriormente con PlatformIO.
+Una vez creado el Workflow, se indica el evento que lo desencadena. En este caso, el evento es \textbf{cuando se añaden cambios en el código del programa y se pushean a la rama principal} (rama main), a partir del cual se inician una serie de acciones para \textbf{compilar, testear y cargar} automáticamente este código en la placa. De esta misma manera se realiza para entornos de desarrollo Web, con la diferencia de que para proyectos IoT se debe incluir herramientas específicas para cargar el programa en la placa, tal como se detalló anteriormente, con PlatformIO.
 
 \subsection{Descripción del Workflow}
 A continuación se presenta una descripción pormenorizada del workflow de GitHub Actions. El mismo se ejecuta cuando se pushean cambios en el contenido de los directorios \textbf{/src} - \textbf{/include} y \textbf{/test}. \textbf{Cualquier cambio que se aplique sobre otra rama o en otras carpetas además de las 3 mencionadas, no ejecutan el pipeline}. Por ejemplo, iniciar el pipeline ante un cambio en la documentación del README, sería innecesario y hasta un desperdicio de recursos. 
@@ -151,9 +151,9 @@ Cada job precede al anterior, lo que significa que no puede iniciarse hasta que 
     \label{fig:pipeline3}
 \end{figure}
 \subsection{Tests}
-Para implementar los tests se hace uso de \href{http://www.throwtheswitch.org/unity}{Unity Tests}, el cual es una herramienta que provee aserciones (o ``\textbf{Asserts}''), que son sentencias que verifican que se cumplan ciertas condiciones en el código. Está escrito en lenguaje C y está pensado especialmente para microcontroladores y sistemas embebidos, permite usar macros y otras facilidades para probar estos sistemas durante su desarrollo.
+Para implementar los tests se hace uso de \href{http://www.throwtheswitch.org/unity}{Unity Tests}, la cual es una herramienta que provee aserciones (o ``\textbf{Asserts}''), que son sentencias que verifican que se cumplan ciertas condiciones en el código. Las pruebas están escritas en lenguaje C y está pensado especialmente para microcontroladores y sistemas embebidos, ya que permite usar macros y otras facilidades para probar estos sistemas durante su desarrollo.
 
-Dentro del proyecto, los tests se ubican en la carpeta \textbf{/test/}, en este caso se tiene sólo un archivo de tests, llamado \textbf{test\_main.c}.
+Dentro del proyecto, los tests se ubican en la carpeta \textbf{/test/}, en este caso se tiene sólo un archivo de tests, llamado \href{https://github.com/FeedehC/pipeline-esp32/blob/main/test/test_main.c}{\textbf{test\_main.c}}.
 
 Se crearon 2 tests:
 \begin{enumerate}
@@ -163,7 +163,8 @@ Para esta prueba se usa la función \textbf{TEST\_ASSERT\_GREATER\_OR\_EQUAL()}
 Para esta prueba se usa la función \textbf{TEST\_ASSERT\_LESS\_OR\_EQUAL()}
 \end{enumerate}
 
-A continuación se presenta el código:
+
+A continuación se presenta el código de los tests:
 
 \begin{lstlisting}[language=C, caption={UnityTests}, label={cod:unity-tests}, captionpos=b]
 #include <unity.h>
@@ -186,15 +187,17 @@ void app_main()
 }
 \end{lstlisting}
 
+Estos tests crean un \textbf{rango válido de valores} para la constante de tiempo DELAY. Recordemos que \textbf{DELAY es el tiempo que tiene que transcurrir para que el LED cambie de estado}, es decir, se encienda si está apagado o viceversa. La idea es que si no se cumple alguna de estas pruebas, el pipeline no continúe su ejecución normal y se evite cargar el código en la placa, simulando una prevención de posibles daños. Además se notifica con un email automático, avisando que falló la ejecución del pipeline cuál de los jobs produjo el fallo, en este caso el job tests.
+
 \textbf{Rango Válido de valores de DELAY:}
  $$50[ms] <= DELAY <= 5000[ms]$$
 
-Estos tests crean un \textbf{rango válido de valores} para la constante de tiempo DELAY. Recordemos que \textbf{DELAY es el tiempo que tiene que transcurrir para que el LED cambie de estado}, es decir, se encienda si está apagado o viceversa. La idea es que si no se cumple alguna de estas pruebas, el pipeline no continúe su ejecución normal y se evite cargar el código en la placa, simulando una prevención de posibles daños.
+
 
 \newpage
 \subsection{Runners}
 
-Cuando se trabaja con pipelines, por defecto las acciones se ejecutan en un servidor en la nube, llamado \textbf{Runner}. Si bien GitHub provee un runner de forma gratuita, está limitado a una cantidad de minutos de ejecución por mes, luego solicita un pago. A continuación se presenta la tabla \ref{tab:minutos-gratuitos} con la información de facturación de los runners de GitHub.
+Cuando se trabaja con pipelines, por defecto las acciones se ejecutan en un servidor en la nube, llamado \textbf{Runner}. Si bien GitHub provee un runner de forma gratuita, está limitado a una cantidad de minutos de ejecución por mes, excedidos estos minutos se solicita facturación. A continuación se presenta la tabla \ref{tab:minutos-gratuitos} con la información de facturación de los runners de GitHub, a modo informativo.
 
 \begin{table}[H]
 \begin{center}
@@ -209,7 +212,7 @@ Cuando se trabaja con pipelines, por defecto las acciones se ejecutan en un serv
 \end{center}
 \end{table}
 
-A su vez, dependiendo del sistema operativo deseado para el runner, se tiene un multiplicador de minutos, que básicamente indica que un minuto de reloj se contabiliza como varios minutos de runner, consumiendo más rápidamente la tasa de minutos gratuitos. La tabla \ref{tab:multiplicadores-minutos} detalla los multiplicadores mencionados.
+A su vez, dependiendo del sistema operativo deseado para el runner, se tiene un multiplicador de minutos, que básicamente indica que un minuto de reloj se contabiliza como varios minutos de ejecución del runner, consumiendo más rápidamente la tasa de minutos gratuitos. La tabla \ref{tab:multiplicadores-minutos} detalla los multiplicadores mencionados.
 
 \begin{table}[H]
 \begin{center}
@@ -225,7 +228,7 @@ A su vez, dependiendo del sistema operativo deseado para el runner, se tiene un 
 \end{center}
 \end{table}
 
-La facturación del runner se hace en función de cuantos minutos se sobrepasen del límite de minutos gratuitos por mes. La siguiente tabla \ref{tab:costos-minutos}
+La facturación del runner se hace en función de cuantos minutos se sobrepasen del límite de minutos gratuitos por mes, lo que se puede ver en la siguiente tabla \ref{tab:costos-minutos} .
 
 \begin{table}[H]
 \begin{center}
@@ -243,21 +246,23 @@ La facturación del runner se hace en función de cuantos minutos se sobrepasen 
 
 (La información acerca de la facturación de GitHub Runners se encuentra en: \href{https://docs.github.com/es/billing/managing-billing-for-github-actions/about-billing-for-github-actions}{Billing for GitHub Actions})
 
-Por este motivo es recomendable crear un Runner local, también conocido como \textbf{self-hosted runner}, es decir, brindar la capacidad de cómputo de una computadora propia para permitirle al repositorio correr las tareas o jobs, evitando usar los recursos de la nube y \textbf{tener un runner disponible de manera gratuita}.
+Por este motivo se decidió crear un Runner local, también conocido como \textbf{self-hosted runner}, es decir, brindar la capacidad de cómputo de una computadora propia para permitirle al runner correr las tareas o jobs, evitando usar los recursos de la nube y \textbf{tener un runner disponible de manera gratuita}.
 
-Luego de seguir las instrucciones para levantar el runner local, se tuvo el inconveniente de que funciona en la distribución Ubuntu pero no en LinuxMint, debido a un error de dependencias de módulos de Python. Para solucionar este problema, \textbf{se corre el self-hosted runner dentro de un contenedor de Docker}, que se detalla en la siguiente sección.
+La contraparte de crear un runner local, es que hace falta mantener el servidor que lo ejecuta, instalar actualizaciones y asegurarse que siempre está disponible.
+
+Luego de seguir las instrucciones para levantar el runner local, se tuvo el inconveniente de que no funciona en algunas distribuciones de Linux, debido a un error de dependencias de módulos de Python. Para solucionar este problema, \textbf{se corre el self-hosted runner dentro de un contenedor de Docker}, que se detalla en la siguiente sección.
 
 \subsection{Docker}
 
 \href{https://www.docker.com/}{Docker} es una herramienta popular en la cultura DevOps, que permite crear contenedores que encapsulan las dependencias que requiere una aplicación para correr.
 
-Los \textbf{contenedores} son piezas de software livianas, independientes, empaquetables y ejecutables que incluyen todo lo que necesita para correr: código, runtime, herramientas de sistema, librerías y configuraciones. Cabe aclarar que un contenedor se ejecuta como un proceso independiente dentro de un sistema operativo por consiguiente puede ser afectado por el controlador de procesos del sistema operativo.
+Los \textbf{contenedores} son piezas de software livianas, independientes, empaquetables y ejecutables que incluyen todo lo que necesita para correr las aplicaciones: código, herramientas de sistema, librerías y configuraciones. Cabe aclarar que un contenedor se ejecuta como un proceso independiente dentro de un sistema operativo por consiguiente puede ser afectado por el controlador de procesos del sistema operativo.
 
-Por otro lado, una \textbf{imagen} de Docker, es una receta para poder construir contenedores, tantos contenedores como sean necesarios de la misma aplicación. Cada imagen está descrita en un archivo llamado \textbf{Dockerfile}, dentro de este archivo se encuentran todas las etapas necesarias para construir la imagen.
+Por otro lado, una \textbf{imagen} de Docker, es una receta para poder instanciar contenedores, tantos como sean necesarios de la misma aplicación. La imagen está descrita en un archivo llamado \textbf{Dockerfile}, dentro de este archivo se encuentran todas las capas necesarias para construir la imagen. A su vez las imágenes tienen un tag o etiqueta que permite versionarlas.
 
-Hasta este punto se tiene una imagen construida y un contenedor a partir de la imagen, ejecutándose en nuestra máquina local. Sin embargo, la potencia de los contenedores se presenta a la hora de realizar despliegues (o ``Deployments'') con ellos. Para esto añadimos un nuevo concepto llamado \textbf{registro}. \textbf{Docker registry} es un repositorio de artefactos donde podemos almacenar imágenes de Docker. La versión comercial se encuentra en \href{https://hub.docker.com}{Dockerhub}.
+Hasta este punto se tiene una imagen construida y un contenedor creado a partir de la imagen, ejecutándose en la máquina local. Sin embargo, la potencia de los contenedores se presenta a la hora de realizar despliegues (o ``\textbf{Deployments}'') de las aplicaciones en diferentes entornos. Para esto se tiene un nuevo concepto llamado \textbf{registro}. \textbf{Docker registry} es un repositorio donde se almacenan imágenes de Docker. La versión comercial se encuentra en \href{https://hub.docker.com}{Dockerhub}.
 
-La figura \ref{fig:docker} muestra un esquema en el que se ilustran los conceptos mencionados, además de los comandos de Docker, y aparece el Docker daemon, que es el proceso encargado de gestionar las imágenes y contenedores. Por otro lado, el registry representa un repositorio en la nube, al que se pueden subir o bajar imágenes.
+La figura \ref{fig:docker} muestra un esquema en el que se ilustran los conceptos mencionados anteriormente, además de los comandos de Docker, y también aparece el \textbf{Docker daemon}, que es el proceso encargado de gestionar las imágenes y contenedores. Por otro lado, el registry representa un repositorio en la nube, al que se pueden subir o bajar imágenes.
 
 \begin{figure}[H]
     \centering
@@ -274,7 +279,7 @@ En concreto, se partió de la imagen \href{https://registry.hub.docker.com/r/tca
 
 \subsubsection{Docker Compose}
 
-Para facilitar la inicialización del contenedor se usa \href{https://docs.docker.com/compose/}{Docker Compose}, que es una herramienta para declarar como código YAML uno o más contenedores para instanciarse, desde qué imagen se parte, y su configuracion específica, como el mapeo de puertos con el sistema host, si posee o no un volumen asociado, entre otras. 
+Para facilitar la inicialización del contenedor se usa \href{https://docs.docker.com/compose/}{Docker Compose}, que es una herramienta para declarar como código YAML uno o más contenedores para instanciarse, desde qué imagen se parte, y su configuracion específica, como el mapeo de puertos con el sistema host, si posee o no un volumen asociado, redes, entre otras. 
 
 Gracias a esta herramienta, basta con ejecutar el comando \textbf{sudo docker-compose up} para iniciar el contenedor correspondiente al self-hosted runner. Cabe aclarar que Docker Compose no agrega funcionalidad más allá de Docker, sino que permite declarar como código las configuraciones que de otra forma tendrían que hacerse con los comandos de docker: \textbf{docker pull, docker build, docker run} como se muestran en la figura \ref{fig:docker}. Este código se encuentra en el archivo \href{https://github.com/FeedehC/pipeline-esp32/blob/main/docker-compose.yml}{docker-compose.yml} ubicado en el directorio raíz del proyecto.
 
@@ -291,11 +296,11 @@ A continuación se presenta una captura de pantalla de la terminal que corre el 
 
 
 \subsection{Documentación}
-Una vez logrado el pipeline y su ejecución exitosa, se documentó el trabajo, confeccionando el presente informe de las actividades llevadas a cabo, y además el README del \href{https://github.com/FeedehC/pipeline-esp32}{repositorio de GitHub} que indica paso a paso como crear un repositorio personal con el proyecto, es decir, un \textbf{``fork''}, y como implementar el pipeline para un proyecto personal. 
+Una vez logrado el pipeline y su ejecución exitosa, se documentó el trabajo, confeccionando el presente informe de las actividades llevadas a cabo, y además el README del \href{https://github.com/FeedehC/pipeline-esp32}{repositorio de GitHub} que indica paso a paso como crear una copia personal con el repositorio proyecto, es decir, un \textbf{``fork''}, y como implementar el pipeline para un proyecto personal. 
 
-Si bien el proyecto está configurado para trabajar con una placa \textbf{ESP32 tipo NodeMCU32s}, en caso que otros desarrolladores necesiten implementar el pipeline para un proyecto que usa otro dispositivo, en caso que el dispositivo sea soportado por PlatformIO (lo que se puede verificar en el siguiente \href{https://registry.platformio.org/search?t=platform}{enlace}), bastará con ajustar las configuraciones en el archivo \href{https://github.com/FeedehC/pipeline-esp32/blob/main/platformio.ini}{\textbf{platformio.ini}} ubicado en la carpeta raíz del repositorio. Es en este archivo donde se detallan los ajustes para PlatformIO y es posible incluso declarar más de un entorno de trabajo, es decir, trabajar con distintos dispositivos e indicar qué dependencias corresponden a cada uno. 
+Si bien el proyecto está configurado para trabajar con una placa \textbf{ESP32 tipo NodeMCU32s}, en caso que otros desarrolladores necesiten implementar el pipeline para un proyecto que usa otro dispositivo, y considerando que el dispositivo es soportado por PlatformIO (lo que se puede verificar en el siguiente \href{https://registry.platformio.org/search?t=platform}{enlace}), bastará con ajustar las configuraciones en el archivo \href{https://github.com/FeedehC/pipeline-esp32/blob/main/platformio.ini}{\textbf{platformio.ini}} ubicado en la carpeta raíz del repositorio. Es en este archivo donde se detallan los ajustes de PlatformIO y es posible incluso declarar más de un entorno de trabajo, es decir, trabajar con distintos dispositivos e indicar qué dependencias corresponden a cada uno. 
 
-Para subir el código a un dispositivo u otro, se debe aclarar el \textbf{environment} al momento de ejecutar el comando \textbf{pio run}, típicamente en el archivo \href{https://github.com/FeedehC/pipeline-esp32/blob/main/.github/workflows/main.yml}{\textbf{.github/workflows/main.yml}}, es decir, en el código yaml del pipeline.
+Para subir el código a un dispositivo u otro, se debe aclarar el \textbf{environment} al momento de ejecutar el comando \textbf{pio run}, típicamente en el archivo \href{https://github.com/FeedehC/pipeline-esp32/blob/main/.github/workflows/main.yml}{\textbf{.github/workflows/main.yml}}, es decir, en el código YAML del pipeline.
 
 Como extra \textbf{se añadió una versión en inglés de la documentación} del repositorio, que se puede encontrar en el archivo \href{https://github.com/FeedehC/pipeline-esp32/blob/main/README-english.md}{\textbf{README-english.md}} en la raíz del repositorio, con el propósito de poder compartirlo con desarrolladores que prefieran esta lengua para trabajar.
 

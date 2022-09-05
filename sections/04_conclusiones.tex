@@ -3,21 +3,10 @@ Una vez finalizado el trabajo, con el self-hosted runner contenerizado con Docke
 
 Una vez que se pushean al repositorio cambios en las carpetas /src, /include y /tests de la rama principal, se desencadenan las tareas del Workflow para compilar, testear y cargar el nuevo programa en la placa.
 
-\textbf{Consumo de Recursos}
-
-Se midió el consumo de recursos de esta aplicación sencilla para la placa, gracias a la funcionalidad de PlatformIO Statistics, obteniendo las métricas de uso de memoria RAM, uso de almacenamiento Flash, y defectos encontrados, las cuales se muestran en la figura \ref{fig:metrics}.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{fig/platformio-esp32-metrics.png}
-    \caption{Métricas del ESP32 corriendo la aplicación}
-    \label{fig:metrics}
-\end{figure}
-
 \textbf{Tiempos}
 
-La ejecución inicial del runner demora aproximadamente 2 minutos hasta que está listo para ejecutar jobs.
-Cuando se pushea un cambio por primera vez, se demora bastante para instalar las dependencias en el contenedor, aproximadamente unos 8 minutos. Para posteriores pusheos de cambios, se corren los jobs más rápidamente porque el contenedor ya tiene sus dependencias instaladas, en este caso demora aproximadamente 2 minutos en cargar el nuevo código en la placa, considerando que pasaron exitosamente los tests. Se resume esta información en la tabla
+La inicialización del runner demora aproximadamente 2 minutos hasta que está listo para ejecutar jobs.
+Cuando se pushea un cambio por primera vez, se demora aproximadamente 8 minutos para instalar las dependencias en el contenedor. Para posteriores pusheos de cambios, se corren los jobs más rápidamente porque el contenedor ya tiene sus dependencias instaladas, en este caso demora aproximadamente 2 minutos en cargar el nuevo código en la placa, considerando que pasaron exitosamente los tests. Se resume esta información en la tabla
 
 \begin{table}[H]
 \begin{center}
@@ -33,6 +22,6 @@ Cuando se pushea un cambio por primera vez, se demora bastante para instalar las
 \end{center}
 \end{table}
 
-Los tiempos dependen de la computadora con la que se corre el self-hosted runner, en este caso se trata de una notebook de gama media del año 2020, modelo Lenovo Legión 5i, cuya ficha técnica se puede encontrar en el siguiente \href{https://www.lenovo.com/ar/es/laptops/laptops-legion/legion-5-series/Legion-5i-15/p/88GMY501434}{enlace}.
+Los tiempos dependen de la computadora con la que se corre el self-hosted runner, en este caso se trata de una notebook del año 2020, \textbf{Lenovo Legión 5i}, cuya ficha técnica se puede encontrar en el siguiente \href{https://www.lenovo.com/ar/es/laptops/laptops-legion/legion-5-series/Legion-5i-15/p/88GMY501434}{enlace}.
 
 
